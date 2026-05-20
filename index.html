@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FOCUS — Plataforma Fitness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/run_icon.png" type="image/png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="authScreen" class="auth-overlay">
+  <div class="auth-side-art">
+    <div class="art-title">FOCUS</div>
+    <div class="art-sub">Sua jornada começa agora.</div>
+    <div class="art-dots"></div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-logo">FOCUS</div>
+    <p class="auth-tagline">Plataforma de monitoramento fitness</p>
+    <div class="tabs">
+      <button class="tab active" id="tabLogin" onclick="showLogin()">Entrar</button>
+      <button class="tab" id="tabRegister" onclick="showRegister()">Cadastrar</button>
+    </div>
+    <div id="loginForm">
+      <div class="input-group"><label>Email</label><input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email"></div>
+      <div class="input-group"><label>Senha</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
+      <div id="loginError" class="error-msg" style="display:none;"></div>
+      <button class="btn" onclick="login()">Entrar</button>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <div class="input-group"><label>Nome</label><input type="text" id="registerName" placeholder="Seu nome completo"></div>
+      <div class="input-group"><label>Email</label><input type="email" id="registerEmail" placeholder="seu@email.com"></div>
+      <div class="input-group"><label>Senha <small>(mín. 6 caracteres)</small></label><input type="password" id="registerPassword" placeholder="Crie uma senha segura"></div>
+      <div id="registerError" class="error-msg" style="display:none;"></div>
+      <button class="btn" onclick="register()">Criar Conta</button>
+    </div>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <header>
+    <div class="logo">FOCUS</div>
+    <nav>
+      <a href="#" class="nav-link active" onclick="showDashboard(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span class="nav-text">Dashboard</span>
+      </a>
+      <a href="#" class="nav-link" onclick="showProfile(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-text">Perfil</span>
+      </a>
+    </nav>
+    <div class="header-right">
+      <div class="header-streak" id="headerStreak" title="Sequência de dias ativos">
+        <span class="streak-fire">🔥</span>
+        <span id="headerStreakCount">0</span>
+      </div>
+      <div class="header-avatar" id="headerAvatar">F</div>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <section id="dashboardScreen" class="page">
+    <div class="page-header">
+      <div>
+        <h2 class="section-title">Painel <span>FOCUS</span></h2>
+        <p class="section-sub">Acompanhe sua evolução</p>
+      </div>
+      <div class="header-badges">
+        <div class="total-badge">
+          <span id="totalKmBadge">0</span>
+          <small>km totais</small>
+        </div>
+        <div class="total-badge streak-badge">
+          <span id="streakBadgeTop">0</span>
+          <small>🔥 sequência</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- DICA DO DIA -->
+    <div class="tip-card" id="tipCard">
+      <div class="tip-icon">🧠</div>
+      <div class="tip-content">
+        <span class="tip-label">DICA DO DIA</span>
+        <p id="tipText"></p>
+      </div>
+      <button class="tip-next" onclick="nextTip()" title="Próxima dica">›</button>
+    </div>
+
+    <div class="grid">
+
+      <!-- METAS -->
+      <div class="card card-goals">
+        <div class="card-header">
+          <span class="card-icon">🎯</span>
+          <h3>Metas de KM</h3>
+        </div>
+        <div class="goal-item">
+          <div class="goal-row">
+            <span class="goal-label">Diária</span>
+            <span class="goal-values"><span id="goalDailyKm">0</span> / <input type="number" id="goalDailyInput" class="goal-input" placeholder="10" min="1"> km</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="progressDaily"></div></div>
+            <span class="progress-pct" id="pctDaily">0%</span>
+          </div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-row">
+            <span class="goal-label">Semanal</span>
+            <span class="goal-values"><span id="goalWeeklyKm">0</span> / <input type="number" id="goalWeeklyInput" class="goal-input" placeholder="50" min="1"> km</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="progressWeekly"></div></div>
+            <span class="progress-pct" id="pctWeekly">0%</span>
+          </div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-row">
+            <span class="goal-label">Anual</span>
+            <span class="goal-values"><span id="goalAnnualKm">0</span> / <input type="number" id="goalAnnualInput" class="goal-input" placeholder="500" min="1"> km</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar"><div class="progress-fill" id="progressAnnual"></div></div>
+            <span class="progress-pct" id="pctAnnual">0%</span>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-outline" style="margin-top:14px;width:100%" onclick="saveGoals()">Salvar Metas</button>
+      </div>
+
+      <!-- TREINOS -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">🏋️</span>
+          <h3>Registrar Treino</h3>
+        </div>
+
+        <!-- DROPDOWN de tipo de treino -->
+        <div class="input-group">
+          <label>Tipo de Treino</label>
+          <div class="select-wrapper">
+            <select id="workoutTypeSelect" onchange="onWorkoutTypeChange(this)">
+              <option value="corrida">🏃 Corrida</option>
+              <option value="ciclismo">🚴 Ciclismo</option>
+              <option value="natação">🏊 Natação</option>
+              <option value="musculação">🏋️ Musculação</option>
+              <option value="yoga">🧘 Yoga</option>
+              <option value="caminhada">🚶 Caminhada</option>
+            </select>
+            <span class="select-arrow">▾</span>
+          </div>
+        </div>
+
+        <div class="input-group" id="kmInputGroup">
+          <label>Distância (km)</label>
+          <div class="input-row">
+            <input type="number" id="kmInput" placeholder="Ex: 5.2" min="0.1" step="0.1">
+            <button class="btn btn-sm" onclick="addKm()">Salvar</button>
+          </div>
+        </div>
+        <div class="input-group" id="durationInputGroup" style="display:none">
+          <label>Duração (min)</label>
+          <div class="input-row">
+            <input type="number" id="durationInput" placeholder="Ex: 45" min="1">
+            <button class="btn btn-sm" onclick="addKm()">Salvar</button>
+          </div>
+        </div>
+        <div class="km-list" id="kmList">
+          <p class="empty-state">Nenhum treino registrado ainda.</p>
+        </div>
+      </div>
+
+      <!-- GRÁFICO com tabs + filtro por tipo -->
+      <div class="card card-chart">
+        <div class="card-header">
+          <span class="card-icon">📊</span>
+          <h3>Desempenho</h3>
+          <div class="chart-tabs" style="margin-left:auto">
+            <button class="chart-tab active" id="tabLineChart" onclick="switchChart('line',this)">Histórico</button>
+            <button class="chart-tab" id="tabBarChart" onclick="switchChart('bar',this)">Semana</button>
+          </div>
+        </div>
+        <!-- Filtro de tipo de treino do gráfico -->
+        <div class="chart-filter-row">
+          <label class="chart-filter-label">Visualizar:</label>
+          <div class="select-wrapper select-wrapper-sm">
+            <select id="chartTypeFilter" onchange="initChart()">
+              <option value="geral">📊 Geral (todos)</option>
+              <option value="corrida">🏃 Corrida</option>
+              <option value="ciclismo">🚴 Ciclismo</option>
+              <option value="natação">🏊 Natação</option>
+              <option value="musculação">🏋️ Musculação</option>
+              <option value="yoga">🧘 Yoga</option>
+              <option value="caminhada">🚶 Caminhada</option>
+            </select>
+            <span class="select-arrow">▾</span>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="performanceChart"></canvas>
+        </div>
+      </div>
+
+      <!-- HIDRATAÇÃO -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">💧</span>
+          <h3>Hidratação</h3>
+          <span class="hydration-date" id="hydrationDate"></span>
+        </div>
+
+        <!-- Toggle litros / copos -->
+        <div class="hydration-unit-toggle">
+          <span class="unit-label">Unidade:</span>
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="btnUnitCopos" onclick="setWaterUnit('copos')">🫙 Copos</button>
+            <button class="toggle-btn" id="btnUnitLitros" onclick="setWaterUnit('litros')">💧 Litros</button>
+          </div>
+        </div>
+
+        <div class="hydration-goal-row">
+          <span class="goal-label">Meta diária</span>
+          <div class="hydration-goal-input-row">
+            <input type="number" id="waterGoalInput" class="goal-input" placeholder="8" min="0.1" max="20" step="0.1">
+            <span id="waterUnitLabel" style="color:var(--muted);font-size:.85rem">copos</span>
+          </div>
+        </div>
+        <div class="water-glasses" id="waterGlasses"></div>
+        <div class="hydration-progress">
+          <div class="progress-bar">
+            <div class="progress-fill progress-fill-blue" id="progressWater"></div>
+          </div>
+          <div class="hydration-count">
+            <span id="waterCount">0</span> / <span id="waterGoalDisplay">8</span>
+            <span id="waterCountUnit">copos</span>
+          </div>
+        </div>
+        <div class="hydration-btns">
+          <button class="btn btn-sm" onclick="addWater()" id="btnAddWater">+ 1 copo</button>
+          <button class="btn btn-sm btn-outline" onclick="removeWater()" id="btnRemoveWater">– 1 copo</button>
+          <button class="btn btn-sm btn-outline" onclick="resetWater()">Zerar</button>
+        </div>
+      </div>
+
+      <!-- STREAK -->
+      <div class="card card-streak">
+        <div class="card-header">
+          <span class="card-icon">🔥</span>
+          <h3>Sequência</h3>
+        </div>
+        <div class="streak-display">
+          <div class="streak-fire-big">🔥</div>
+          <div class="streak-number" id="streakNumber">0</div>
+          <div class="streak-label">dias consecutivos</div>
+        </div>
+        <div class="streak-info">
+          <div class="streak-stat"><span id="streakBest">0</span><small>Melhor sequência</small></div>
+          <div class="streak-stat"><span id="streakLastActive">—</span><small>Último treino</small></div>
+        </div>
+        <div class="streak-message" id="streakMessage"></div>
+      </div>
+
+      <!-- IMC -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">⚖️</span>
+          <h3>Cálculo de IMC</h3>
+        </div>
+        <div class="input-group"><label>Altura (m ou cm)</label><input type="number" step="0.01" id="height" placeholder="Ex: 1.75 ou 175"></div>
+        <div class="input-group"><label>Peso (kg)</label><input type="number" step="0.1" id="weight" placeholder="Ex: 72"></div>
+        <button class="btn" onclick="calculateIMC()">Calcular IMC</button>
+        <div id="imcPreview" class="imc-preview" style="display:none;">
+          <div class="imc-preview-number" id="imcPreviewNumber">--</div>
+          <div class="imc-preview-label" id="imcPreviewLabel">--</div>
+        </div>
+      </div>
+
+      <!-- CALENDÁRIO HEATMAP -->
+      <div class="card card-calendar">
+        <div class="card-header">
+          <span class="card-icon">📅</span>
+          <h3>Atividades do Mês</h3>
+          <div class="cal-nav" style="margin-left:auto">
+            <button class="cal-nav-btn" onclick="changeCalMonth(-1)">‹</button>
+            <span id="calMonthLabel"></span>
+            <button class="cal-nav-btn" onclick="changeCalMonth(1)">›</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="cal-legend">
+          <span class="cal-dot cal-dot-0"></span> Sem atividade
+          <span class="cal-dot cal-dot-1" style="margin-left:10px"></span> Leve
+          <span class="cal-dot cal-dot-2" style="margin-left:10px"></span> Moderado
+          <span class="cal-dot cal-dot-3" style="margin-left:10px"></span> Intenso
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PERFIL -->
+  <section id="profileScreen" class="page" style="display:none;">
+    <div class="page-header">
+      <div>
+        <h2 id="saudacao" class="section-title">Olá, <span>Atleta</span></h2>
+        <p class="section-sub">Gerencie seus dados pessoais</p>
+      </div>
+    </div>
+    <div class="grid grid-profile">
+      <div class="card">
+        <div class="avatar-wrap">
+          <div class="avatar" id="profileAvatar">F</div>
+          <p class="avatar-hint">Inicial do nome</p>
+        </div>
+        <div class="input-group"><label>Nome</label><input type="text" id="profileNameInput" placeholder="Seu nome"></div>
+        <div class="input-group"><label>Email</label><input type="email" id="profileEmailInput" placeholder="seu@email.com"></div>
+        <div class="input-row-half">
+          <div class="input-group"><label>Altura (m)</label><input type="number" step="0.01" id="profileHeightInput" placeholder="1.75"></div>
+          <div class="input-group"><label>Peso (kg)</label><input type="number" step="0.1" id="profileWeightInput" placeholder="70"></div>
+        </div>
+        <button class="btn" onclick="saveProfile()">Salvar Perfil</button>
+      </div>
+
+      <div class="card card-athlete">
+        <div class="card-header"><span class="card-icon">🏅</span><h3>Resumo do Atleta</h3></div>
+
+        <div class="athlete-level-section">
+          <div class="athlete-level-header">
+            <span class="level-label">NÍVEL</span>
+            <span class="level-name" id="athleteLevelName">Iniciante</span>
+          </div>
+          <div class="level-xp-bar"><div class="level-xp-fill" id="levelXpFill"></div></div>
+          <div class="level-xp-text" id="levelXpText">0 / 50 km para o próximo nível</div>
+        </div>
+
+        <div class="stats">
+          <div class="stat-box"><div class="stat-icon">🏃</div><h2 id="profileKm">0</h2><small>km totais</small></div>
+          <div class="stat-box"><div class="stat-icon">📅</div><h2 id="activeDays">0</h2><small>dias ativos</small></div>
+          <div class="stat-box"><div class="stat-icon">🔥</div><h2 id="profileStreak">0</h2><small>sequência</small></div>
+        </div>
+
+        <div class="medals-section">
+          <h4 class="medals-title">Conquistas</h4>
+          <div class="medals-grid" id="medalsGrid"></div>
+        </div>
+
+        <div class="profile-imc-section" id="profileImcSection" style="display:none;">
+          <div class="divider"></div>
+          <h3 class="profile-imc-title">Seu IMC</h3>
+          <div class="profile-imc-result" id="profileImcResult"></div>
+        </div>
+
+        <div class="logout-wrap">
+          <button class="btn btn-outline" onclick="logout()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sair da conta
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 FOCUS</span>
+    <span>Feito para atletas de verdade.</span>
+  </footer>
+</div>
+
+<div id="imcModal" class="modal" onclick="closeIMCModalOutside(event)">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeIMCModal()">×</button>
+    <h2>Resultado do IMC</h2>
+    <div id="modalImcText"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="js/app.js"></script>
+</body>
+</html>
