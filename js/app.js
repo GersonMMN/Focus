@@ -26,42 +26,78 @@ let currentTipIndex = 0;                   // índice da dica atual
 // Array de dicas exibidas rotacionalmente na tela principal.
 // Para adicionar mais dicas, basta inserir strings neste array.
 
-const TIPS = [
-  'Hidrate-se antes, durante e após os treinos. A desidratação reduz até 20% da performance.',
-  'Descanso é treino. O corpo cresce e se recupera no repouso, não durante o exercício.',
-  'Consistência bate intensidade. Treinar 30 min todo dia supera 3h uma vez por semana.',
-  'Aqueça por pelo menos 10 minutos antes de correr para evitar lesões.',
-  'A respiração correta na corrida: inspire pelo nariz 2 passos, expire pela boca 2 passos.',
-  'Variar o tipo de treino evita platôs e mantém a motivação em alta.',
-  'Durma 7-9h por noite. O sono é o suplemento mais poderoso que existe.',
-  'Proteína pós-treino nas primeiras 2h maximiza a recuperação muscular.',
-  'Metas pequenas e diárias constroem resultados grandes a longo prazo.',
-  'Treinar em grupo aumenta a aderência ao exercício em até 40%.',
-  'Escute seu corpo: dor aguda é sinal de parar, desconforto muscular é sinal de progresso.',
-  'A corrida em subida aumenta a força e queima 60% mais calorias que o plano.',
+//const API_KEY = '{{APIKEY}}';
+//const MODEL = 'gemini-2.5-flash';
+//const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+
+const CATEGORIAS_DICAS = [
+  'hidratação', 'recuperação muscular', 'treino',
+  'nutrição esportiva', 'mentalidade atlética',
+  'corrida', 'sono e descanso'
 ];
 
-function showTip() {
-  const el = document.getElementById('tipText');
-  if (el) {
-    const savedIdx = Number(localStorage.getItem('focus_tipIndex') || 0);
-    currentTipIndex = savedIdx % TIPS.length;
-    el.textContent = TIPS[currentTipIndex];
-  }
-}
+const gerarDicaAI = async () => {
+  const categoria = CATEGORIAS_DICAS[Math.floor(Math.random() * CATEGORIAS_DICAS.length)];
 
-function nextTip() {
-  currentTipIndex = (currentTipIndex + 1) % TIPS.length;
-  localStorage.setItem('focus_tipIndex', currentTipIndex);
+  const prompt = `
+    ## Especialidade
+    Você é um especialista em performance esportiva e saúde para atletas amadores e profissionais.
+
+    ## Tarefa
+    Gere UMA dica prática e motivadora sobre o tema: "${categoria}"
+
+    ## Regras
+    - A dica deve ser objetiva, entre 1 e 2 frases
+    - Máximo de 180 caracteres no total
+    - Inclua um dado concreto quando possível (percentuais, tempo, números)
+    - Tom direto e motivador, sem saudações ou despedidas
+    - Considere boas práticas atuais de esporte e saúde
+
+    ## Resposta
+    Responda APENAS com o texto da dica, nada mais.
+
+    ## Exemplos do formato esperado
+    "Hidrate-se antes, durante e após os treinos. A desidratação reduz até 20% da performance."
+    "Durma 7-9h por noite. O sono é o suplemento mais poderoso que existe."
+  `;
+
+  const response = await fetch(GEMINI_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
+  });
+
+  const data = await response.json();
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+};
+
+const showTip = async () => {
   const el = document.getElementById('tipText');
-  if (el) {
-    el.style.opacity = '0';
-    setTimeout(() => {
-      el.textContent = TIPS[currentTipIndex];
-      el.style.opacity = '1';
-    }, 200);
+  if (!el) return;
+
+  el.textContent = 'Carregando dica...';
+
+  try {
+    const dica = await gerarDicaAI();
+    if (dica) el.textContent = dica;
+  } catch (err) {
+    el.textContent = 'Não foi possível carregar a dica. Tente novamente.';
+    console.error('Erro ao gerar dica:', err);
   }
-}
+};
+
+const nextTip = () => {
+  const el = document.getElementById('tipText');
+  if (!el) return;
+
+  setTimeout(async () => {
+    await showTip();
+  }, 200);
+};
+
+showTip();
 
 // ==========================================
 // UTILS: TOAST
