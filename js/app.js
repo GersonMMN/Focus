@@ -26,9 +26,9 @@ let currentTipIndex = 0;                   // índice da dica atual
 // Array de dicas exibidas rotacionalmente na tela principal.
 // Para adicionar mais dicas, basta inserir strings neste array.
 
-//const API_KEY = '{{APIKEY}}';
-//const MODEL = 'gemini-2.5-flash';
-//const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+const API_KEY = '{{APIKEY}}';
+const MODEL = 'gemini-2.5-flash';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
 const CATEGORIAS_DICAS = [
   'hidratação', 'recuperação muscular', 'treino',
