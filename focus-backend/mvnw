@@ -1,0 +1,62 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# ----------------------------------------------------------------------------
+
+# Apache Maven Wrapper startup shell script, version 3.2.0
+
+set -e
+
+MAVEN_PROJECTBASEDIR="${MAVEN_BASEDIR:-$(pwd)}"
+WRAPPER_PROPERTIES="$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.properties"
+
+DISTRIBUTION_URL=$(grep "^distributionUrl=" "$WRAPPER_PROPERTIES" | cut -d'=' -f2-)
+
+MAVEN_USER_HOME="${MAVEN_USER_HOME:-$HOME/.m2}"
+DISTRIBUTION_PATH="$MAVEN_USER_HOME/wrapper/dists"
+MAVEN_VERSION=$(echo "$DISTRIBUTION_URL" | grep -oP 'apache-maven-\K[0-9.]+')
+MAVEN_HOME="$DISTRIBUTION_PATH/apache-maven-$MAVEN_VERSION-bin/apache-maven-$MAVEN_VERSION"
+
+if [ ! -d "$MAVEN_HOME" ]; then
+    echo "Downloading Apache Maven $MAVEN_VERSION from $DISTRIBUTION_URL"
+    mkdir -p "$DISTRIBUTION_PATH/apache-maven-$MAVEN_VERSION-bin"
+    DOWNLOAD_ZIP="$DISTRIBUTION_PATH/apache-maven-$MAVEN_VERSION-bin.zip"
+    if command -v curl > /dev/null 2>&1; then
+        curl -fsSL "$DISTRIBUTION_URL" -o "$DOWNLOAD_ZIP"
+    elif command -v wget > /dev/null 2>&1; then
+        wget -q "$DISTRIBUTION_URL" -O "$DOWNLOAD_ZIP"
+    else
+        echo "Neither curl nor wget found. Please install one of them."
+        exit 1
+    fi
+    unzip -q "$DOWNLOAD_ZIP" -d "$DISTRIBUTION_PATH/apache-maven-$MAVEN_VERSION-bin"
+    rm -f "$DOWNLOAD_ZIP"
+fi
+
+JAVA_CMD="${JAVA_HOME:+$JAVA_HOME/bin/}java"
+
+LAUNCHER_JAR=$(find "$MAVEN_HOME/boot" -name "plexus-classworlds-*.jar" | head -1)
+
+exec "$JAVA_CMD" \
+  $MAVEN_OPTS \
+  -classpath "$LAUNCHER_JAR" \
+  "-Dclassworlds.conf=$MAVEN_HOME/bin/m2.conf" \
+  "-Dmaven.home=$MAVEN_HOME" \
+  "-Dlibrary.jansi.path=$MAVEN_HOME/lib/jansi-native" \
+  "-Dmaven.multiModuleProjectDirectory=$MAVEN_PROJECTBASEDIR" \
+  org.codehaus.plexus.classworlds.launcher.Launcher "$@"
