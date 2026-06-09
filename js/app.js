@@ -41,9 +41,9 @@ async function apiFetch(path, method = 'GET', body = null) {
 // DICAS DO DIA
 // ==========================================
 
-const API_KEY = '{{APIKEY}}';
-const MODEL = 'gemini-2.5-flash';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+const MODEL = 'llama-3.3-70b-versatile';
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+function getGroqKey() { return localStorage.getItem('focus_groq_key') || ''; }
 
 const CATEGORIAS_DICAS = [
   'hidratação', 'recuperação muscular', 'treino',
@@ -75,18 +75,32 @@ const gerarDicaAI = async () => {
     "Durma 7-9h por noite. O sono é o suplemento mais poderoso que existe."
   `;
 
-  const response = await fetch(GEMINI_URL, {
+  const apiKey = getGroqKey();
+  if (!apiKey) throw new Error('Groq API key não configurada');
+  const response = await fetch(GROQ_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 200,
+      temperature: 0.7
+    })
   });
   const data = await response.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  return data?.choices?.[0]?.message?.content?.trim();
 };
 
 const showTip = async () => {
   const el = document.getElementById('tipText');
   if (!el) return;
+  if (!getGroqKey()) {
+    el.textContent = 'Configure sua chave Groq no Perfil para ativar as dicas de IA.';
+    return;
+  }
   el.textContent = 'Carregando dica...';
   try {
     const dica = await gerarDicaAI();
@@ -96,6 +110,23 @@ const showTip = async () => {
     console.error('Erro ao gerar dica:', err);
   }
 };
+
+function saveGroqKey() {
+  const input = document.getElementById('groqKeyInput');
+  if (!input) return;
+  const key = input.value.trim();
+  if (!key) return;
+  localStorage.setItem('focus_groq_key', key);
+  input.value = '';
+  input.placeholder = '✓ Chave salva com sucesso!';
+  showTip();
+}
+
+function loadGroqKeyStatus() {
+  const input = document.getElementById('groqKeyInput');
+  if (!input) return;
+  input.placeholder = getGroqKey() ? '✓ Chave já configurada' : 'gsk_...';
+}
 
 const nextTip = () => {
   setTimeout(async () => { await showTip(); }, 200);
@@ -353,6 +384,7 @@ async function showProfile(linkEl) {
   updateStats();
   renderAthleteLevel();
   await renderMedals();
+  loadGroqKeyStatus();
 }
 
 function showDashboardScreen() {
