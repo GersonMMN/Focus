@@ -30,6 +30,8 @@ public class ProfileService {
         response.setStreakBest(user.getStreakBest());
         response.setLastImc(user.getLastImc());
         response.setLastImcLabel(user.getLastImcLabel());
+        response.setWaterUnit(user.getWaterUnit());
+        response.setWaterGoal(user.getWaterGoal());
         return response;
     }
 
@@ -37,10 +39,14 @@ public class ProfileService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        if (request.getName() != null) user.setName(request.getName());
-        if (request.getEmail() != null) user.setEmail(request.getEmail());
-        if (request.getHeight() != null) user.setHeight(request.getHeight());
-        if (request.getWeight() != null) user.setWeight(request.getWeight());
+        if (request.getName() != null)         user.setName(request.getName());
+        if (request.getEmail() != null)         user.setEmail(request.getEmail());
+        if (request.getHeight() != null)        user.setHeight(request.getHeight());
+        if (request.getWeight() != null)        user.setWeight(request.getWeight());
+        if (request.getWaterUnit() != null)     user.setWaterUnit(request.getWaterUnit());
+        if (request.getWaterGoal() != null)     user.setWaterGoal(request.getWaterGoal());
+        if (request.getLastImc() != null)       user.setLastImc(request.getLastImc());
+        if (request.getLastImcLabel() != null)  user.setLastImcLabel(request.getLastImcLabel());
 
         user = userRepository.save(user);
 
@@ -55,6 +61,8 @@ public class ProfileService {
         response.setStreakBest(user.getStreakBest());
         response.setLastImc(user.getLastImc());
         response.setLastImcLabel(user.getLastImcLabel());
+        response.setWaterUnit(user.getWaterUnit());
+        response.setWaterGoal(user.getWaterGoal());
         return response;
     }
 }

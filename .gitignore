@@ -1,0 +1,11 @@
+# Maven build
+focus-backend/target/
+
+# Node
+node_modules/
+package.json
+package-lock.json
+
+# Test artifacts
+test-frontend.mjs
+test-screenshots/

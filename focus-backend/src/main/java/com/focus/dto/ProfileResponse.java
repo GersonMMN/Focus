@@ -12,6 +12,8 @@ public class ProfileResponse {
     private Integer streakBest;
     private String lastImc;
     private String lastImcLabel;
+    private String waterUnit;
+    private Double waterGoal;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -42,4 +44,10 @@ public class ProfileResponse {
 
     public String getLastImcLabel() { return lastImcLabel; }
     public void setLastImcLabel(String lastImcLabel) { this.lastImcLabel = lastImcLabel; }
+
+    public String getWaterUnit() { return waterUnit; }
+    public void setWaterUnit(String waterUnit) { this.waterUnit = waterUnit; }
+
+    public Double getWaterGoal() { return waterGoal; }
+    public void setWaterGoal(Double waterGoal) { this.waterGoal = waterGoal; }
 }

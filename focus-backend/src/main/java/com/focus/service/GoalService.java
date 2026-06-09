@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 @Service
@@ -69,7 +70,7 @@ public class GoalService {
                     if ("daily".equals(period)) {
                         return w.getDate().equals(now);
                     } else if ("weekly".equals(period)) {
-                        LocalDate startOfWeek = now.with(DayOfWeek.SUNDAY);
+                        LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
                         return !w.getDate().isBefore(startOfWeek);
                     } else if ("annual".equals(period)) {
                         return w.getDate().getYear() == now.getYear();
