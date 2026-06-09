@@ -1,6 +1,9 @@
 # Maven build
 focus-backend/target/
 
+# Secrets locais (nunca commitar)
+focus-backend/src/main/resources/application-local.properties
+
 # Node
 node_modules/
 package.json
