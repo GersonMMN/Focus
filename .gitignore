@@ -11,4 +11,9 @@ package-lock.json
 
 # Test artifacts
 test-frontend.mjs
+test-ia.mjs
+test-ia-quick.mjs
 test-screenshots/
+
+# H2 database file
+focus-backend/data/
