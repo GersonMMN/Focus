@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface WorkoutRepository extends JpaRepository<Workout, Long> {
-    List<Workout> findByUserIdOrderByDateDesc(Long userId);
+    List<Workout> findByUserIdOrderByDateDescIdDesc(Long userId);
     List<Workout> findByUserIdAndDate(Long userId, LocalDate date);
     List<Workout> findByUserIdAndDateBetweenOrderByDate(Long userId, LocalDate start, LocalDate end);
 }

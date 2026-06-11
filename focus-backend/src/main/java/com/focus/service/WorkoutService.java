@@ -28,7 +28,7 @@ public class WorkoutService {
     }
 
     public List<WorkoutResponse> getWorkouts(Long userId) {
-        return workoutRepository.findByUserIdOrderByDateDesc(userId).stream()
+        return workoutRepository.findByUserIdOrderByDateDescIdDesc(userId).stream()
                 .map(w -> new WorkoutResponse(w.getId(), w.getType(), w.getKm(),
                         w.getDuration(), w.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))))
                 .collect(Collectors.toList());
